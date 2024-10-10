@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,17 +12,29 @@ public class InformationServer {
     public static void main(String[] args) {
         try {
 
-            ServerSocket s = new ServerSocket(1234);
+            ServerSocket serverSocket = new ServerSocket(1234);
 
-            System.out.println("Ten serwer pracuje " + s.getInetAddress() +":"+ s.getLocalPort());
-            Socket conn = s.accept();
+            System.out.println("Ten serwer pracuje " + serverSocket.getInetAddress() +":"+ serverSocket.getLocalPort());
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Kto się podłączył: " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
 
-            PrintStream p = new PrintStream(conn.getOutputStream());
-            System.out.println("Kto się podłączył: " + conn.getInetAddress() + ":" + conn.getPort());
-            System.out.println("A ja rozmawiam: " + conn.getLocalAddress() +":"+ conn.getLocalPort());
-            p.println("Połączyłeś się z serwerem. Bye..");
+            PrintStream output = new PrintStream(clientSocket.getOutputStream());
+            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            conn.close();
+            String clientMessage;
+            while ((clientMessage = input.readLine()) != null) {
+                System.out.println("Otrzymano od klienta: " + clientMessage);
+
+                output.println("Serwer otrzymał: " + clientMessage);
+
+                if (clientMessage.equalsIgnoreCase("exit")) {
+                    System.out.println("Zakończono połączenie z klientem.");
+                    break;
+                }
+            }
+
+            clientSocket.close();
+            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

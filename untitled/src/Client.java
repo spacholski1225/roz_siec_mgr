@@ -17,21 +17,28 @@ public class Client {
     public void OpenConnection(){
         try {
             Socket socket = new Socket(_hostname, _portNumber);
+            System.out.println("Połączono z serwerem: " + socket.getInetAddress() + ":" + socket.getPort());
 
             BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputStream = new PrintWriter(socket.getOutputStream(), true);
             Scanner userInput = new Scanner(System.in);
             while (true){
+                System.out.print("Klient: ");
                 _line = userInput.nextLine();
 
-                if(_line.equals(".")){
-                    break;
-                }
                 outputStream.println(_line);
                 outputStream.flush();
-                System.out.println(inputStream.readLine());
 
+                if (_line.equalsIgnoreCase("exit")) {
+                    System.out.println("Zakończono połączenie.");
+                    break;
+                }
+
+                String serverResponse = inputStream.readLine();
+                System.out.println("Serwer: " + serverResponse);
             }
+
+            socket.close();
         } catch (Exception e) {
             System.err.println(e);
         }
