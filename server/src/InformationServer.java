@@ -1,17 +1,16 @@
+import Context.DbContext;
+import Logic.Logic;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 
 public class InformationServer {
-    private HashMap<String, String> KeysDatabase = new HashMap<String, String>();
 
     public static void main(String[] args) {
         try {
-
             ServerSocket serverSocket = new ServerSocket(1234);
 
             System.out.println("Ten serwer pracuje " + serverSocket.getInetAddress() +":"+ serverSocket.getLocalPort());
@@ -21,13 +20,15 @@ public class InformationServer {
             PrintStream output = new PrintStream(clientSocket.getOutputStream());
             BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String clientMessage;
-            while ((clientMessage = input.readLine()) != null) {
-                System.out.println("Otrzymano od klienta: " + clientMessage);
+            String clientRequest;
+            DbContext singletonContext = new DbContext();
 
-                output.println("Serwer otrzymał: " + clientMessage);
+            while ((clientRequest = input.readLine()) != null) {
+                System.out.println("Otrzymano od klienta: " + clientRequest);
+                output.println(requestHandler(clientRequest, singletonContext));
+                output.flush();
 
-                if (clientMessage.equalsIgnoreCase("exit")) {
+                if (clientRequest.equalsIgnoreCase("exit")) {
                     System.out.println("Zakończono połączenie z klientem.");
                     break;
                 }
@@ -40,12 +41,17 @@ public class InformationServer {
         }
     }
 
-    public HashMap<String, String> getKeysDatabase() {
-        return KeysDatabase;
-    }
+    private static String requestHandler(String clientRequest, DbContext context) {
 
-    public void setKeysDatabase(HashMap<String, String> keysDatabase) {
-        KeysDatabase.put("test", "0000000001");
-        KeysDatabase.put("admin", "6666666666");
+        Logic logic = new Logic(clientRequest, context);
+
+        if(clientRequest.startsWith("key_in-get")){
+            return logic.CheckIfKeyExists();
+        }
+        else if(clientRequest.startsWith("key_in-set")) {
+            return logic.SetNewKey();
+        }
+
+        return "Bad Request cannot proceed.";
     }
 }
