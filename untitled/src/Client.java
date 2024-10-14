@@ -22,6 +22,7 @@ public class Client {
             BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputStream = new PrintWriter(socket.getOutputStream(), true);
             Scanner userInput = new Scanner(System.in);
+
             while (true){
                 System.out.print("Klient: ");
                 _line = userInput.nextLine();
