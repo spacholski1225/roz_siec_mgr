@@ -11,7 +11,7 @@ public class InformationServer {
 
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(1234);
+            ServerSocket serverSocket = new ServerSocket(2011);
 
             System.out.println("Ten serwer pracuje " + serverSocket.getInetAddress() +":"+ serverSocket.getLocalPort());
             Socket clientSocket = serverSocket.accept();
